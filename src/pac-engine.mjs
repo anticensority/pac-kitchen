@@ -13,7 +13,10 @@ export const cook = ({ pacText, middlewares, options = {} }) => {
 /******/;(function(global) {
 /******/  "use strict";
 /******/
-/******/  const middlewares = ${JSON.stringify(middlewares, null, 2)};
+/******/  const originalFindProxyForURL = FindProxyForURL;
+/******/  const middlewares = [
+${middlewares.map((fn) => fn.toString()).join(',\n')}
+/******/  ];
 /******/
 /******/  const context = {
 /******/    inputs: {
@@ -27,19 +30,18 @@ export const cook = ({ pacText, middlewares, options = {} }) => {
 /******/    if (i < middlewares.length) {
 /******/      middlewares[i++](context, next);
 /******/    } else {
-/******/      outputs.proxiesString = FindProxyForURL(
+/******/      context.outputs.proxiesString = originalFindProxyForURL(
 /******/        context.inputs.url,
 /******/        context.inputs.hostname,
 /******/      );
 /******/    }
 /******/  }
 /******/
-/******/  const originalFindProxyForURL = FindProxyForURL;
 /******/  const tmp = function(url, hostname) {
 /******/
 /******/    Object.assign(context.inputs, { url, hostname });
 /******/    next();
-/******/    return outputs.proxiesString;
+/******/    return context.outputs.proxiesString;
 /******/  }
 /******/  if (global) {
 /******/    global.FindProxyForURL = tmp;
