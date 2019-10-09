@@ -47,6 +47,27 @@ Mocha.describe('PAC Engine', function () {
 
   });
 
+  Mocha.it('works with actions', function () {
+
+    const simpleCooked = cook({ pacText: simplePacScript, middlewares: [], eventsToActions: {
+      'AFTER_PAC_SCRIPT': [{
+        action: 'replace',
+        from: 'B',
+        to: 'XxXYyYZzZ',
+      }],
+      'FINISH': [{
+        action: 'replace',
+        from: 'yY',
+        to: 'uU',
+      }],
+    }});
+    Chai.expect(simpleCooked).to.be.a('string').that.is.not.empty;
+
+    const simpleResult = evalPacScript(simpleCooked, 'https://foo.com', 'foo.com');
+    Chai.expect(simpleResult).to.equal("AXxXYuUZzZC");
+
+  });
+
 });
 
 

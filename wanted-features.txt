@@ -1,0 +1,3 @@
+1. Ability to use own proxies only for exceptions, for sites from PAC-script use proxy from PAC-script.
+2. Ability to proxy .onion, .i2p but not opennic (needed?).
+3. Ability to set priority for proxies (custom or tor proxies should have higher priority).
