@@ -58,6 +58,7 @@ ${middlewares.map((fn) => fn.toString()).join(',\n')}
 /******/    if (i < middlewares.length) {
 /******/      middlewares[i++](context, next);
 /******/    } else {
+/******/      context.utils.emitEvent('BEFORE_PAC_SCRIPT');
 /******/      context.outputs.proxiesString = originalFindProxyForURL(
 /******/        context.inputs.url,
 /******/        context.inputs.hostname,
@@ -69,6 +70,7 @@ ${middlewares.map((fn) => fn.toString()).join(',\n')}
 /******/  const tmp = function(url, hostname) {
 /******/
 /******/    Object.assign(context.inputs, { url, hostname });
+/******/    context.utils.emitEvent('START');
 /******/    next();
 /******/    context.utils.emitEvent('FINISH');
 /******/    return context.outputs.proxiesString;
