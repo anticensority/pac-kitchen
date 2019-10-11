@@ -3,13 +3,30 @@
 
   return {
     pacKitchenVersion: 0,
+/*
+    pacScript: {
+      urls: ['https://some-url.com', 'https://fallback-url.com'],
+
+      // OR
+      text: (function FindProxyForURL(url, hostname) {
+        return "DIRECT";
+      }).toString(),
+
+      // OR
+      text: `
+function FindProxyForURL(url, hostname) {
+  return "DIRECT";
+}
+      `.trim(),
+    },
+*/
     enabledRules: [
       /*
       'ifProhibitDns',
       'ifProxyHttpsUrlsOnly',
       'ifUseSecureProxiesOnly',
-      'ifProxyOrDie',
-      'ifUsePacScriptProxies',
+      'eitherProxyOrDirect',
+      'ifNotToUsePacScriptProxies',
       'ifUseLocalTor',
       'ifMindExceptions',
       'ifProxyMoreDomains',

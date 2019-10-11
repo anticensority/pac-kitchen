@@ -23,9 +23,37 @@ ${middlewares.map((fn) => fn.toString()).join(',\n')}
 /******/      options: ${JSON.stringify(options, null, 2)},
 /******/      global,
 /******/    },
-/******/    outputs: {},
+/******/    outputs: {
+/******/      proxiesString: '',
+/******/    },
 /******/    utils: {},
 /******/  };
+/******/
+/******/
+/******/  context.utils.parseProxiesString = (str = context.outputs.proxiesString) =>
+/******/
+/******/    str
+/******/      .split(/(?:\s*;+\s*)+/g)
+/******/      .map((p) => p.trim())
+/******/      .filter((p) => p);
+/******/      .map((pStr) => {
+/******/
+/******/        const [type, host] = pStr.split(/\s+/g);
+/******/        let port, hostname;
+/******/        if (host) {
+/******/          const parts = host.split(/:/g);
+/******/          if (parts.length > 1) {
+/******/            port = parts.pop();
+/******/          }
+/******/          hostname = parts.join(':')
+/******/        }
+/******/        return {
+/******/          type,
+/******/          host,
+/******/          hostname,
+/******/          port,
+/******/        };
+/******/      });
 /******/
 /******/  const eventsToActions = ${JSON.stringify(eventsToActions)};
 /******/  context.utils.emitEvent = (eventName) => {
@@ -56,7 +84,10 @@ ${middlewares.map((fn) => fn.toString()).join(',\n')}
 /******/  let i = 0;
 /******/  const next = () => {
 /******/    if (i < middlewares.length) {
-/******/      middlewares[i++](context, next);
+/******/      const proxiesStringMaybe = middlewares[i++](context, next);
+/******/      if (typeof proxiesStringMaybe === 'string') {
+/******/        context.outputs.proxiesString = proxiesStringMaybe;
+/******/      }
 /******/    } else {
 /******/      context.utils.emitEvent('BEFORE_PAC_SCRIPT');
 /******/      context.outputs.proxiesString = originalFindProxyForURL(
