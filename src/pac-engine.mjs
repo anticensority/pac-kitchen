@@ -1,6 +1,6 @@
 const kitchenStartsMark = '\n\n//%#@@@@@@ PAC_KITCHEN_STARTS @@@@@@#%';
 
-export const cook = ({ pacText, middlewares, options = {}, eventsToActions = {} }) => {
+export const cook = ({ pacText, middlewares, options = {}, eventToActions = {} }) => {
 
   pacText = pacText.replace(
     new RegExp(kitchenStartsMark + '[\\s\\S]*$', 'g'),
@@ -8,15 +8,31 @@ export const cook = ({ pacText, middlewares, options = {}, eventsToActions = {} 
   );
   /a/.test('a'); // GC RegExp.input and friends.
 
+  const stringify = (object) => {
+
+    if (Object(object) === object) {
+      if (object.constructor.name === 'Object') {
+        const keys = Object.keys(object);
+        return `{ ${keys.map((key) => key + ':' + stringify(object[key])).join(',\n')} }`;
+      }
+      if (object.constructor.name === 'Array') {
+        return `[${object.map(stringify).join(', ')}]`;
+      }
+    }
+    if (typeof object === 'string') {
+      return `"${object}"`;
+    }
+    return String(object);
+
+  };
+
   return pacText + `${ kitchenStartsMark }
 /******/
 /******/;(function(global) {
 /******/  "use strict";
 /******/
 /******/  const originalFindProxyForURL = FindProxyForURL;
-/******/  const middlewares = [
-${middlewares.map((fn) => fn.toString()).join(',\n')}
-/******/  ];
+/******/  const middlewares = ${stringify(middlewares)};
 /******/
 /******/  const context = {
 /******/    inputs: {
@@ -35,7 +51,7 @@ ${middlewares.map((fn) => fn.toString()).join(',\n')}
 /******/    str
 /******/      .split(/(?:\s*;+\s*)+/g)
 /******/      .map((p) => p.trim())
-/******/      .filter((p) => p);
+/******/      .filter((p) => p)
 /******/      .map((pStr) => {
 /******/
 /******/        const [type, host] = pStr.split(/\s+/g);
@@ -55,17 +71,17 @@ ${middlewares.map((fn) => fn.toString()).join(',\n')}
 /******/        };
 /******/      });
 /******/
-/******/  const eventsToActions = ${JSON.stringify(eventsToActions)};
+/******/  const eventToActions = ${stringify(eventToActions)};
 /******/  context.utils.emitEvent = (eventName) => {
 /******/
-/******/    const actions = eventsToActions[eventName];
+/******/    const actions = eventToActions[eventName];
 /******/    if (!actions) {
 /******/      return;
 /******/    }
 /******/    actions.forEach((action) => {
 /******/
 /******/      switch(action.action) {
-/******/        case 'replace':
+/******/        case 'replaceProxiesString':
 /******/          context.outputs.proxiesString =
 /******/            context.outputs.proxiesString.replace(
 /******/              new RegExp(action.from, 'g'),

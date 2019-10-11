@@ -6,7 +6,7 @@
     pacKitchenVersion: 0,
     rules: [
       {
-        label: 'ifProhibitDns',
+        id: 'ifProhibitDns',
         eventToQueues: {
           'START': [{
             actions: [{
@@ -22,7 +22,7 @@
         order: -1000,
       },
       {
-        label: 'ifProxyHttpsUrlsOnly',
+        id: 'ifProxyHttpsUrlsOnly',
         middlewares: [(context, next) => {
 
           if (!context.inputs.url.startsWith('https://')) {
@@ -33,7 +33,7 @@
         order: -900,
       },
       {
-        label: 'ifUseSecureProxiesOnly',
+        id: 'ifUseSecureProxiesOnly',
         eventToQueues: {
           'FINISH': [{
             actions: [{
@@ -56,7 +56,7 @@
         order: 900,
       },
       {
-        label: 'eitherProxyOrDirect',
+        id: 'eitherProxyOrDirect',
         eventToQueues: {
           'FINISH': [{
             actions: [{
@@ -74,26 +74,26 @@
         order: 1000,
       },
       {
-        label: 'ifNotToUsePacScriptProxies',
+        id: 'ifNotToUsePacScriptProxies',
         eventToQueues: {
-          'AFTER_PAC_SCRIPT': {
+          'AFTER_PAC_SCRIPT': [{
             actions: [{
               type: 'replaceProxiesString',
               from: '.*',
               to: '',
             }],
             queueAt: 'begining',
-          }
+          }],
         },
         order: 0,
       },
       {
-        label: 'ifUseLocalTor',
+        id: 'ifUseLocalTor',
         options: {
-          torReplce: `${torProxies}; $&`,
+          torReplace: `${torProxies}; $&`,
         },
         eventToQueues: {
-          'PROXY_THIS_EXCEPTION': {
+          'PROXY_THIS_EXCEPTION': [{
             actions: [{
               type: 'custom',
               handler: (context) => {
@@ -102,7 +102,7 @@
                 return context.outputs.proxiesString.replace(/.*/g, context.inputs.options.torReplace);
               },
             }],
-          },
+          }],
           'FINISH': [{
             actions: [{
               type: 'custom',
@@ -122,7 +122,7 @@
         order: 800,
       },
       {
-        label: 'ifMindExceptions',
+        id: 'ifMindExceptions',
         options: {
           exceptions: {
             // 'kasparov.ru': true, // Proxy.
@@ -160,7 +160,7 @@
         }],
       },
       {
-        label: 'ifProxyMoreDomains',
+        id: 'ifProxyMoreDomains',
         options: {
           exceptions: {
             'onion': true,

@@ -49,14 +49,14 @@ Mocha.describe('PAC Engine', function () {
 
   Mocha.it('works with actions', function () {
 
-    const simpleCooked = cook({ pacText: simplePacScript, middlewares: [], eventsToActions: {
+    const simpleCooked = cook({ pacText: simplePacScript, middlewares: [], eventToActions: {
       'AFTER_PAC_SCRIPT': [{
-        action: 'replace',
+        action: 'replaceProxiesString',
         from: 'B',
         to: 'XxXYyYZzZ',
       }],
       'FINISH': [{
-        action: 'replace',
+        action: 'replaceProxiesString',
         from: 'yY',
         to: 'uU',
       }],
