@@ -11,8 +11,8 @@ export const cook = ({ pacText, middlewares, options = {}, eventToActions = {} }
   const stringify = (object) => {
 
     if (Object(object) === object) {
-      if (object.constructor.name === 'Object') {
-        const keys = Object.keys(object);
+      const keys = Object.keys(object);
+      if (keys.includes('constructor') || object.constructor.name === 'Object') {
         return `{ ${keys.map((key) => key + ':' + stringify(object[key])).join(',\n')} }`;
       }
       if (object.constructor.name === 'Array') {
@@ -20,9 +20,10 @@ export const cook = ({ pacText, middlewares, options = {}, eventToActions = {} }
       }
     }
     if (typeof object === 'string') {
-      return `"${object}"`;
+      return `"${object.replace(/(\n|\r|")/g, '\\$1')}"`;
     }
-    return String(object);
+    // Strings created with `new String(...)` has typeof === 'object' and are not wraped in quotes!
+    return String(object); 
 
   };
 

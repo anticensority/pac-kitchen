@@ -1,0 +1,17 @@
+{
+  "pacKitchenVersion": 0,
+  "pacScript": {
+    "text": "string!function FindProxyForURL(url, hostname) {\n        return 'DIRECT';\n      }"
+  },
+  "enabledRules": [
+    "string!ifProhibitDns",
+    "string!ifProxyHttpsUrlsOnly",
+    "string!ifUseSecureProxiesOnly",
+    "string!eitherProxyOrDirect",
+    "string!ifNotToUsePacScriptProxies",
+    "string!ifUseLocalTor",
+    "string!ifMindExceptions",
+    "string!ifProxyMoreDomains"
+  ],
+  "rules": []
+}

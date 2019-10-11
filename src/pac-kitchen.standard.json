@@ -1,0 +1,132 @@
+{
+  "pacKitchenVersion": 0,
+  "rules": [
+    {
+      "id": "string!ifProhibitDns",
+      "eventToQueues": {
+        "START": [
+          {
+            "actions": [
+              {
+                "type": "string!custom",
+                "handler": "function!(context) => {\n\n                context.inputs.global.dnsResolve = () => null;\n              }"
+              }
+            ],
+            "queueAt": "string!begining"
+          }
+        ]
+      },
+      "order": -1000
+    },
+    {
+      "id": "string!ifProxyHttpsUrlsOnly",
+      "middlewares": [
+        "function!(context, next) => {\n\n          if (!context.inputs.url.startsWith('https://')) {\n            return 'DIRECT';\n          }\n          next();\n        }"
+      ],
+      "order": -900
+    },
+    {
+      "id": "string!ifUseSecureProxiesOnly",
+      "eventToQueues": {
+        "FINISH": [
+          {
+            "actions": [
+              {
+                "type": "string!custom",
+                "handler": "function!(context) => {\n\n                return context.utils.parseProxiesString()\n                  .filter(({ type, hostname }) => {\n\n                    if (['HTTPS', 'DIRECT'].includes(type) || hostname === 'localhost') {\n                      return true;\n                    }\n                    return false;\n                  }).join(';');\n              }"
+              }
+            ],
+            "queueAt": "string!ending"
+          }
+        ]
+      },
+      "order": 900
+    },
+    {
+      "id": "string!eitherProxyOrDirect",
+      "eventToQueues": {
+        "FINISH": [
+          {
+            "actions": [
+              {
+                "type": "string!custom",
+                "handler": "function!(context) => {\n\n                return context.utils.parseProxiesString()\n                  .filter(({ type }) => type !== 'DIRECT')\n                  .join(';') || 'DIRECT';\n              }"
+              }
+            ],
+            "queueAt": "string!ending"
+          }
+        ]
+      },
+      "order": 1000
+    },
+    {
+      "id": "string!ifNotToUsePacScriptProxies",
+      "eventToQueues": {
+        "AFTER_PAC_SCRIPT": [
+          {
+            "actions": [
+              {
+                "type": "string!replaceProxiesString",
+                "from": "string!.*",
+                "to": "string!"
+              }
+            ],
+            "queueAt": "string!begining"
+          }
+        ]
+      },
+      "order": 0
+    },
+    {
+      "id": "string!ifUseLocalTor",
+      "options": {
+        "torReplace": "string!SOCKS5 localhost:9050; SOCKS5 localhost:9150; $&"
+      },
+      "eventToQueues": {
+        "PROXY_THIS_EXCEPTION": [
+          {
+            "actions": [
+              {
+                "type": "string!custom",
+                "handler": "function!(context) => {\n\n                context.outputs.ifTorSet = true;\n                return context.outputs.proxiesString.replace(/.*/g, context.inputs.options.torReplace);\n              }"
+              }
+            ]
+          }
+        ],
+        "FINISH": [
+          {
+            "actions": [
+              {
+                "type": "string!custom",
+                "handler": "function!(context) => {\n\n                if (!context.outputs.ifTorSet && !/(?:\\s|;)*DIRECT(?:\\s|;)*/g.test(context.outputs.proxiesString)) {\n                  return context.outputs.proxiesString.replace(\n                    /.*/g,\n                    context.inputs.options.torReplace,\n                  );\n                }\n              }"
+              }
+            ],
+            "queueAt": "string!begining"
+          }
+        ]
+      },
+      "order": 800
+    },
+    {
+      "id": "string!ifMindExceptions",
+      "options": {
+        "exceptions": {}
+      },
+      "emitsEvents": [
+        "string!PROXY_THIS_EXCEPTION"
+      ],
+      "middlewares": [
+        "function!(context, next) => {\n\n          const dotHostname = '.' + context.inputs.hostname;\n          const isHostnameInDomain = (domain) => dotHostname.endsWith('.' + domain);\n          const domainReducer = (maxWeight, [domain, ifIncluded]) => {\n\n            if (!isHostnameInDomain(domain)) {\n              return maxWeight;\n            }\n            const newWeightAbs = domain.length;\n            if (newWeightAbs < Math.abs(maxWeight)) {\n              return maxWeight;\n            }\n            return newWeightAbs*(ifIncluded ? 1 : -1);\n\n          };\n\n          const excWeight = Object.entries(context.inputs.options.exceptions).reduce(domainReducer, 0);\n          if (!excWeight) {\n            return next();\n          }\n          if (excWeight > 0) {\n            context.utils.emitEvent('PROXY_THIS_EXCEPTION');\n            return;\n          }\n          context.outputs.proxiesString = 'DIRECT';\n          context.utils.emitEvent('DONT_PROXY_THIS_EXCEPTION');\n        }"
+      ]
+    },
+    {
+      "id": "string!ifProxyMoreDomains",
+      "options": {
+        "exceptions": {
+          "onion": true,
+          "i2p": true
+        }
+      }
+    }
+  ]
+}
