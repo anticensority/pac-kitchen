@@ -23,7 +23,7 @@ export const cook = ({ pacText, middlewares, options = {}, eventToActions = {} }
       return `"${object.replace(/(\n|\r|")/g, '\\$1')}"`;
     }
     // Strings created with `new String(...)` has typeof === 'object' and are not wraped in quotes!
-    return String(object); 
+    return String(object);
 
   };
 
@@ -46,16 +46,15 @@ export const cook = ({ pacText, middlewares, options = {}, eventToActions = {} }
 /******/    utils: {},
 /******/  };
 /******/
-/******/
 /******/  context.utils.parseProxiesString = (str = context.outputs.proxiesString) =>
 /******/
 /******/    str
-/******/      .split(/(?:\s*;+\s*)+/g)
+/******/      .split(/(?:\\s*;+\\s*)+/g)
 /******/      .map((p) => p.trim())
 /******/      .filter((p) => p)
 /******/      .map((pStr) => {
 /******/
-/******/        const [type, host] = pStr.split(/\s+/g);
+/******/        const [type, host] = pStr.split(/\\s+/g);
 /******/        let port, hostname;
 /******/        if (host) {
 /******/          const parts = host.split(/:/g);
@@ -81,7 +80,7 @@ export const cook = ({ pacText, middlewares, options = {}, eventToActions = {} }
 /******/    }
 /******/    actions.forEach((action) => {
 /******/
-/******/      switch(action.action) {
+/******/      switch(action.type) {
 /******/        case 'replaceProxiesString':
 /******/          context.outputs.proxiesString =
 /******/            context.outputs.proxiesString.replace(
@@ -90,10 +89,13 @@ export const cook = ({ pacText, middlewares, options = {}, eventToActions = {} }
 /******/            );
 /******/          break;
 /******/        case 'custom':
-/******/          action.handler(context);
+/******/          const result = action.handler(context);
+/******/          if (typeof result === 'string') {
+/******/            context.outputs.proxiesString = result;
+/******/          }
 /******/          break;
 /******/        default:
-/******/          throw new TypeError('Unkown action type: ' + action.action);
+/******/          throw new TypeError('Unkown action type: ' + action.type);
 /******/      }
 /******/    });
 /******/  };

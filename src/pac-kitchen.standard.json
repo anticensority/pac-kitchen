@@ -33,7 +33,7 @@
             "actions": [
               {
                 "type": "string!custom",
-                "handler": "function!(context) => {\n\n                return context.utils.parseProxiesString()\n                  .filter(({ type, hostname }) => {\n\n                    if (['HTTPS', 'DIRECT'].includes(type) || hostname === 'localhost') {\n                      return true;\n                    }\n                    return false;\n                  }).join(';');\n              }"
+                "handler": "function!(context) => {\n\n                return context.utils.parseProxiesString()\n                  .filter(({ type, hostname }) => {\n\n                    if (['HTTPS', 'DIRECT'].includes(type) || hostname === 'localhost') {\n                      return true;\n                    }\n                    return false;\n                  })\n                  .map(({ type, host = '' }) => `${type} ${host}`)\n                  .join('; ');\n              }"
               }
             ],
             "queueAt": "string!ending"
@@ -50,7 +50,7 @@
             "actions": [
               {
                 "type": "string!custom",
-                "handler": "function!(context) => {\n\n                return context.utils.parseProxiesString()\n                  .filter(({ type }) => type !== 'DIRECT')\n                  .join(';') || 'DIRECT';\n              }"
+                "handler": "function!(context) => {\n\n                return context.utils.parseProxiesString()\n                  .filter(({ type }) => type !== 'DIRECT')\n                  .map(({ type, host = '' }) => `${type} ${host}`)\n                  .join(';') || 'DIRECT';\n              }"
               }
             ],
             "queueAt": "string!ending"

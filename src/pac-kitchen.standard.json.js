@@ -47,7 +47,9 @@
                       return true;
                     }
                     return false;
-                  }).join(';');
+                  })
+                  .map(({ type, host = '' }) => `${type} ${host}`)
+                  .join('; ');
               },
             }],
             queueAt: 'ending',
@@ -65,6 +67,7 @@
 
                 return context.utils.parseProxiesString()
                   .filter(({ type }) => type !== 'DIRECT')
+                  .map(({ type, host = '' }) => `${type} ${host}`)
                   .join(';') || 'DIRECT';
               },
             }],
