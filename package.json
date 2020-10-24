@@ -4,7 +4,7 @@
   "description": "",
   "main": "pac-kitchen.js",
   "scripts": {
-    "start": "node --experimental-modules ./pac-kitchen.mjs",
+    "start": "node ./src/pac-kitchen.mjs",
     "test": "mocha --require esm --recursive ./test/*"
   },
   "repository": {
@@ -21,7 +21,7 @@
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "esm": "^3.2.25",
-    "mocha": "^6.2.1",
+    "mocha": "^8.2.0",
     "sandbox": "^0.8.6"
   }
 }
