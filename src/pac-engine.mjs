@@ -10,7 +10,8 @@ export const cook = ({ pacText, middlewares, options = {}, eventToActions = {} }
 
   const stringify = (object) => {
 
-    if (Object(object) === object) {
+    const ifObject = Object(object) === object;
+    if (ifObject) {
       const keys = Object.keys(object);
       if (keys.includes('constructor') || object.constructor.name === 'Object') {
         return `{ ${keys.map((key) => key + ':' + stringify(object[key])).join(',\n')} }`;
