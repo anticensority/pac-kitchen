@@ -23,7 +23,8 @@ export const cook = ({ pacText, middlewares, options = {}, eventToActions = {} }
     if (typeof object === 'string') {
       return `"${object.replace(/(\n|\r|")/g, '\\$1')}"`;
     }
-    // Strings created with `new String(...)` has typeof === 'object' and are not wraped in quotes!
+    // Strings created with `new String(...)` has typeof === 'object' and are not wrapped in quotes!
+    // Instead such strings are treated as functions or expressions to eval.
     return String(object);
 
   };
@@ -104,28 +105,25 @@ export const cook = ({ pacText, middlewares, options = {}, eventToActions = {} }
 /******/  let i = 0;
 /******/  const next = () => {
 /******/    if (i < middlewares.length) {
-/******/      const proxiesStringMaybe = middlewares[i++](context, next);
-/******/      if (typeof proxiesStringMaybe === 'string') {
-/******/        context.outputs.proxiesString = proxiesStringMaybe;
-/******/      }
-/******/    } else {
-/******/      context.utils.emitEvent('BEFORE_PAC_SCRIPT');
-/******/      context.outputs.proxiesString = originalFindProxyForURL(
-/******/        context.inputs.url,
-/******/        context.inputs.hostname,
-/******/      );
-/******/      context.utils.emitEvent('AFTER_PAC_SCRIPT');
+/******/      return middlewares[i++](context, next);
 /******/    }
-/******/  }
+/******/    context.utils.emitEvent('BEFORE_ORIGINAL_FIND_PROXY');
+/******/    context.outputs.proxiesString = originalFindProxyForURL(
+/******/      context.inputs.url,
+/******/      context.inputs.hostname,
+/******/    );
+/******/    context.utils.emitEvent('AFTER_ORIGINAL_FIND_PROXY');
+/******/    return context.outputs;  
+/******/  };
 /******/
 /******/  const tmp = function(url, hostname) {
 /******/
 /******/    Object.assign(context.inputs, { url, hostname });
-/******/    context.utils.emitEvent('START');
-/******/    next();
-/******/    context.utils.emitEvent('FINISH');
-/******/    return context.outputs.proxiesString;
-/******/  }
+/******/    context.utils.emitEvent('BEFORE_MIDDLEWARES');
+/******/    const { proxiesString } = next();
+/******/    context.utils.emitEvent('AFTER_MIDDLEWARES');
+/******/    return proxiesString;
+/******/  };
 /******/  if (global) {
 /******/    global.FindProxyForURL = tmp;
 /******/  } else {

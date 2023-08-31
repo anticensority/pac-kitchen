@@ -12,7 +12,7 @@
                 "handler": "function!(context) => {\n\n                context.inputs.global.dnsResolve = () => null;\n              }"
               }
             ],
-            "queueAt": "string!begining"
+            "queueAt": "string!beginning"
           }
         ]
       },
@@ -71,7 +71,7 @@
                 "to": "string!"
               }
             ],
-            "queueAt": "string!begining"
+            "queueAt": "string!beginning"
           }
         ]
       },
@@ -101,7 +101,7 @@
                 "handler": "function!(context) => {\n\n                if (!context.outputs.ifTorSet && !/(?:\\s|;)*DIRECT(?:\\s|;)*/g.test(context.outputs.proxiesString)) {\n                  return context.outputs.proxiesString.replace(\n                    /.*/g,\n                    context.inputs.options.torReplace,\n                  );\n                }\n              }"
               }
             ],
-            "queueAt": "string!begining"
+            "queueAt": "string!beginning"
           }
         ]
       },

@@ -16,7 +16,7 @@
                 context.inputs.global.dnsResolve = () => null;
               },
             }],
-            queueAt: 'begining',
+            queueAt: 'beginning',
           }],
         },
         order: -1000,
@@ -85,7 +85,7 @@
               from: '.*',
               to: '',
             }],
-            queueAt: 'begining',
+            queueAt: 'beginning',
           }],
         },
         order: 0,
@@ -119,7 +119,7 @@
                 }
               },
             }],
-            queueAt: 'begining',
+            queueAt: 'beginning',
           }],
         },
         order: 800,

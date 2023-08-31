@@ -37,7 +37,7 @@ export const cook = (standard, custom) => {
 
       eventQueuesPairs.forEach(([eventName, queues]) => {
 
-        acc[eventName] = acc[eventName] || { begining: [], ending: [], middle: [] };
+        acc[eventName] = acc[eventName] || { beginning: [], ending: [], middle: [] };
         queues.forEach((queue) =>
           acc[eventName][queue.queueAt || 'middle'].push(...queue.actions),
         );
@@ -47,7 +47,7 @@ export const cook = (standard, custom) => {
 
   const eventToActions = Object.entries(eventToPartedQueue).reduce((acc, [eventName, partedQueue]) => {
 
-    acc[eventName] = [...partedQueue.begining, ...partedQueue.middle, ...partedQueue.ending.reverse()];
+    acc[eventName] = [...partedQueue.beginning, ...partedQueue.middle, ...partedQueue.ending.reverse()];
     return acc;
   }, {});
 
