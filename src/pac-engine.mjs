@@ -6,7 +6,7 @@ export const cook = ({ pacText, middlewares, options = {}, eventToActions = {} }
     new RegExp(kitchenStartsMark + '[\\s\\S]*$', 'g'),
     ''
   );
-  /a/.test('a'); // GC RegExp.input and friends.
+  /a/.test('a'); // Garbage-collect RegExp.input and friends.
 
   const stringify = (object) => {
 
@@ -24,7 +24,8 @@ export const cook = ({ pacText, middlewares, options = {}, eventToActions = {} }
       return `"${object.replace(/(\n|\r|")/g, '\\$1')}"`;
     }
     // Strings created with `new String(...)` has typeof === 'object' and are not wrapped in quotes!
-    // Instead such strings are treated as functions or expressions to eval.
+    // Instead such strings are treated as functions or expressions to evaluate,
+    // they are pasted as raw code.
     return String(object);
 
   };
